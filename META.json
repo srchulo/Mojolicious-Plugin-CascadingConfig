@@ -1,5 +1,5 @@
 {
-   "abstract" : "Blah blah blah",
+   "abstract" : "Perl-ish configuration plugin that loads and merges config files in order",
    "author" : [
       "Adam Hopkins <srchulo@cpan.org>"
    ],
@@ -37,11 +37,13 @@
       },
       "runtime" : {
          "requires" : {
+            "Mojolicious" : "0",
             "perl" : "5.008005"
          }
       },
       "test" : {
          "requires" : {
+            "Test::Exception" : "0",
             "Test::More" : "0.96"
          }
       }
