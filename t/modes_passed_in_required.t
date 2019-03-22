@@ -11,21 +11,21 @@ $t->app->moniker('myapp');
 $t->app->mode('prod');
 
 throws_ok
-    { $t->app->plugin('CascadingConfig', { modes => ['dont_exist', 'dev', 'stag'] }) }
+    { $t->app->plugin('CascadingConfig', { modes => ['dont_exist', 'dev', 'stage'] }) }
     qr/Configuration file ".*myapp.dont_exist\.conf" missing, maybe you need to create it\?.*/,
     q{throws when first config file doesn't exist};
 
 $t = Test::Mojo->new('MojoliciousTest');
 $t->app->moniker('myapp');
-$t->app->mode('stag');
+$t->app->mode('stage');
 throws_ok
-    { $t->app->plugin('CascadingConfig', { modes => ['prod', 'dont_exist', 'stag'] }) }
+    { $t->app->plugin('CascadingConfig', { modes => ['prod', 'dont_exist', 'stage'] }) }
     qr/Configuration file ".*myapp.dont_exist\.conf" missing, maybe you need to create it\?.*/,
     q{throws when second config file doesn't exist};
 
 $t = Test::Mojo->new('MojoliciousTest');
 $t->app->moniker('myapp');
-$t->app->mode('stag');
+$t->app->mode('stage');
 throws_ok
     { $t->app->plugin('CascadingConfig', { modes => ['prod', 'dev', 'dont_exist'] }) }
     qr/Configuration file ".*myapp.dont_exist\.conf" missing, maybe you need to create it\?.*/,

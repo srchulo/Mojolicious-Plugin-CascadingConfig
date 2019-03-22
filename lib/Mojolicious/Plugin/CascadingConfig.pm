@@ -55,68 +55,72 @@ __END__
 
 Mojolicious::Plugin::CascadingConfig - Perl-ish configuration plugin that loads and merges config files in order
 
+=head1 STATUS
+
+=for html <a href="https://travis-ci.org/srchulo/Mojolicious-Plugin-CascadingConfig"><img src="https://travis-ci.org/srchulo/Mojolicious-Plugin-CascadingConfig.svg?branch=master"></a>
+
 =head1 SYNOPSIS
 
-    # myapp.conf for production mode
-    {
-        # Just a value
-        foo => "bar",
+  # myapp.conf for production mode
+  {
+      # Just a value
+      foo => 'bar',
 
-        # Nested data structures are fine too
-        baz => ['♥'],
+      # Nested data structures are fine too
+      baz => ['♥'],
 
-        # You have full access to the application
-        music_dir => app->home->child('music'),
-    }
+      # You have full access to the application
+      music_dir => app->home->child('music'),
+  }
 
-    # myapp.development.conf for development mode
-    {
-        foo => "not_bar",
-    }
+  # myapp.development.conf for development mode
+  {
+      foo => 'not_bar',
+  }
 
-    # myapp.staging.conf for staging mode
-    {
-        baz => ['♫'],
-    }
-
-
-    # Mojolicious in production mode
-    my $config = $app->plugin('CascadingConfig');
-    say $config->{foo}; # says 'bar'
-    say $config->{baz}; # says '♥'
-
-    # Mojolicious::Lite
-    my $config = plugin 'Config';
-    say $config->{foo}; # says 'bar'
-
-    # foo.html.ep
-    %= $config->{foo} # evaluates to 'bar'
-
-    # The configuration is available application-wide
-    my $config = app->config;
-    say $config->{foo}; # says 'bar'
+  # myapp.staging.conf for staging mode
+  {
+      baz => ['♫'],
+  }
 
 
-    # Mojolicious in development mode
-    say $config->{foo}; # says 'not_bar'
-    say $config->{baz}; # says '♥'
+  # Mojolicious in production mode
+  my $config = $app->plugin('CascadingConfig');
+  say $config->{foo}; # says 'bar'
+  say $config->{baz}; # says '♥'
+
+  # Mojolicious::Lite
+  my $config = plugin 'Config';
+  say $config->{foo}; # says 'bar'
+
+  # foo.html.ep
+  %= $config->{foo} # evaluates to 'bar'
+
+  # The configuration is available application-wide
+  my $config = app->config;
+  say $config->{foo}; # says 'bar'
 
 
-    # Mojolicious in staging mode
-    say $config->{foo}; # says 'not_bar';
-    say $config->{baz}; # says '♫'
+  # Mojolicious in development mode
+  say $config->{foo}; # says 'not_bar'
+  say $config->{baz}; # says '♥'
+
+
+  # Mojolicious in staging mode
+  say $config->{foo}; # says 'not_bar';
+  say $config->{baz}; # says '♫'
 
 =head1 DESCRIPTION
 
 L<Mojolicious::Plugin::CascadingConfig> is a Perl-ish configuration plugin that loads and merges config files in order, based on L<Mojolicious::Plugin::Config>.
 
-This plugin will load configs in the order specified by L</modes> (ending with L<$app->mode|Mojolicious/mode> if it is not listed in L</modes>), with each new config adding to
-the previous config and overwriting any config key/value pairs that existed before but appeared in the config for the current mode. Once the config file is read for the mode
-matching L<$app->mode|Mojolicious/mode>, the config will be returned. A file must be found for each mode specified in L</modes>.
+This plugin will load configs in the order specified by L</modes> (ending with the current app L<mode|Mojolicious/mode> if it is not listed in L</modes>), with each new config adding to
+the previous config and overwriting any config key/value pairs that existed before. Once the config file is read for the mode matching L<mode|Mojolicious/mode>, the config will be returned.
+A file must be found for each mode specified in L</modes>.
 
-Config filenames are generated in the form of "L<$moniker|Mojolicious/moniker>.$mode.conf". C<production> is a special mode where the form is "L<$moniker|Mojolicious/moniker>.conf".
+Config filenames are expected to be in the form of "L<$moniker|Mojolicious/moniker>.$mode.conf". C<production> is a special mode where the form should be "L<$moniker|Mojolicious/moniker>.conf".
 
-The application object can be accessed via C<$app> or the C<app> function,
+The application object can be accessed via C<$app> or the C<app> function in the config.
 L<strict>, L<warnings>, L<utf8> and Perl 5.10 L<features|feature> are
 automatically enabled.
 
@@ -127,14 +131,20 @@ L<Mojolicious/"config"> when this plugin is loaded, it will not do anything.
 
 =head2 modes
 
-    # Mojolicious::Lite
+  # Mojolicious::Lite
 
-    # This is the default
-    plugin CascadingConfig => {modes => ['production', 'development']};
+  # ['production', 'development'] is the default.
+  # If staging is the current active mode for the app, the config for staging is not required since
+  # it is not explicitly listed in modes.
+  plugin CascadingConfig => {modes => ['production', 'development']};
+
+
+  # Here a staging config file is required because it is listed in modes.
+  plugin CascadingConfig => {modes => ['production', 'development', 'staging']};
 
 Modes in the order that their config files should be loaded and merged. Any config file that is reached for a mode in L</modes> must exist. In addition to the modes listed,
-L<$app->mode|Mojolicious/mode> will be loaded if it is present once all config files have been loaded for each mode in L</modes>. The config file for 
-L<$app->mode|Mojolicious/mode> is optional I<only if it is not in> L</modes>.
+the current app L<mode|Mojolicious/mode> will be loaded if a config file for it is present once all config files have been loaded for each mode in L</modes>. The config file for
+the current app L<mode|Mojolicious/mode> is optional I<only if it is not in> L</modes>.
 
 The default is C<['production', 'development']>.
 
@@ -142,10 +152,10 @@ The default is C<['production', 'development']>.
 
 =head2 register
 
-    my $config = $plugin->register($app);
-    my $config = $plugin->register($app, {modes => ['prod', 'dev', 'stage', 'qa']});
+  my $config = $plugin->register($app);
+  my $config = $plugin->register($app, {modes => ['prod', 'dev', 'stage', 'qa']});
 
-    Register plugin in L<Mojolicious> application and merge configuration.
+Register plugin in L<Mojolicious> application and merge configuration.
 
 =head1 AUTHOR
 
