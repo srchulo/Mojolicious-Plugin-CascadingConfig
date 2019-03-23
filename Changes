@@ -1,6 +1,8 @@
 Revision history for Mojolicious-Plugin-CascadingConfig
 
 {{$NEXT}}
+
+0.03  2019-03-23 17:23:56 CDT
         - Require Mojolicious v7.55 or higher.
 
 0.02  2019-03-22 20:12:25 CDT
